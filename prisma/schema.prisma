@@ -1,0 +1,84 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") // postgresql://admin:********@localhost:5432/olist_dw
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// --- TABEL DIMENSI (Point of the Star) ---
+
+model DimCustomer {
+  customer_key      String @id // Menggunakan customer_unique_id
+  city              String
+  state             String
+  zip_code          Int
+  fact_sales        FactSales[]
+}
+
+model DimProduct {
+  product_key       String @id // Menggunakan product_id
+  category_name_en  String?    // Kategori yang sudah diterjemahkan
+  weight_g          Float?
+  fact_sales        FactSales[]
+}
+
+model DimSeller {
+  seller_key        String @id // Menggunakan seller_id
+  city              String
+  state             String
+  fact_sales        FactSales[]
+}
+
+model DimReview {
+  review_key             String   @id // Menggunakan review_id
+  review_comment_title   String?
+  review_comment_message String?  // <--- DATA UTAMA UNTUK ANALISIS NLP
+  fact_sales             FactSales[]
+}
+
+model DimDate {
+  date_key          DateTime @id
+  day               Int
+  month             Int
+  year              Int
+  quarter           Int
+  day_name          String
+  month_name        String
+  fact_sales        FactSales[]
+}
+
+// --- TABEL FAKTA (The Center of the Star) ---
+
+model FactSales {
+  sales_id          Int      @id @default(autoincrement())
+  order_id          String
+  
+  // Foreign Keys (FK)
+  customer_key      String
+  product_key       String
+  seller_key        String
+  review_key        String?
+  date_key          DateTime
+  order_timestamp   DateTime
+  order_time        String?
+  order_hour        Int?
+
+  // METRIK KUANTITATIF (Pusat hitungan di Tableau)
+  price             Float
+  freight_value     Float    // Ongkir
+  payment_value     Float    // Total bayar (termasuk cicilan)
+  review_score      Int?     // Skor angka (1-5)
+
+  // ATRIBUT DERIVATIF (Untuk Delivery Performance)
+  delivery_days     Int?     // Hasil kalkulasi (hari delivered - hari purchase)
+  is_late           Boolean? // Penanda jika pengiriman telat
+
+  // Relations
+  customer         DimCustomer @relation(fields: [customer_key], references: [customer_key])
+  product          DimProduct  @relation(fields: [product_key], references: [product_key])
+  seller           DimSeller   @relation(fields: [seller_key], references: [seller_key])
+  review           DimReview?  @relation(fields: [review_key], references: [review_key])
+  date             DimDate     @relation(fields: [date_key], references: [date_key])
+}
