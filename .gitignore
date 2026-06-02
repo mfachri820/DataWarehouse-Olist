@@ -1,5 +1,13 @@
-node_modules
-# Keep environment variables out of version control
+# Ignore local environment variables (passwords)
 .env
 
-/generated/prisma
+# Ignore python virtual environments and cache
+__pycache__/
+*.pyc
+venv/
+*env/
+
+# Ignore local database data and Prisma configurations
+node_modules/
+.prisma/
+/prisma/migrations/
