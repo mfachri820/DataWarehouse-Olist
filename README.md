@@ -1,3 +1,5 @@
+<img width="1167" height="816" alt="Screenshot 2026-06-12 161647" src="https://github.com/user-attachments/assets/8e3d2082-ca25-4d4f-8930-a29eedd5c198" />
+
 # Data Warehouse Project - Olist
 
 A data warehouse implementation using PostgreSQL with Star Schema design for Olist e-commerce data analysis.
